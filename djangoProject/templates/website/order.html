@@ -1,0 +1,235 @@
+{% extends 'website/base.html' %}
+{% load static %}
+
+{% block content %}
+    <!-- main content -->
+    <main class="checkout-order-body main-content gradient-lg position-relative">
+
+        <!-- overlay -->
+        <div class="overlay pe-n br-n bp-c bs-c o-30"
+             style="background-image: {% static 'wicodius/img/bg_shape.png' %}"></div>
+        <!-- /.overlay -->
+
+        <!-- content area -->
+        <div class="content-section text-light">
+            <div class="container">
+                <div class="position-relative">
+                    <div class="row">
+                        <div class="col-lg-8 mb-8 mb-lg-0">
+                            <div>
+                                <div class="mb-7">
+                                    <h4>Корзина</h4>
+                                    <hr class="border-secondary my-4">
+                                    <div class="row">
+                                        <!-- item -->
+                                        {% for id, game in request.session.cart.items %}
+                                            <div class="col-md-12 mb-4">
+                                                <div class="product-item">
+                                                    <div class="row align-items-center no-gutters">
+                                                        <div class="item_img d-none d-sm-block">
+                                                            <a href="{% url 'website:detail' game.id %}">
+                                                                <img class="checkout-order-img img bl-3 text-primary"
+                                                                     src="{{ game.header }}"
+                                                                     alt="Games Store">
+                                                            </a>
+                                                        </div>
+                                                        <div class="item_content flex-1 flex-grow pl-0 pl-sm-6 pr-6">
+                                                            <a href="{% url 'website:detail' game.id %}">
+                                                                <h6 class="item_title ls-1 small-1 fw-600 text-uppercase mb-1">
+                                                                    {{ game.name }}</h6>
+                                                            </a>
+                                                            <div class="mb-0">
+                                                                <i class="mr-2 fab fa-windows"></i>
+                                                                <i class="mr-2 fab fa-steam"></i>
+                                                                <i class="fab fa-apple"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="amount-wrapper d-flex align-items-center justify-content-center border border-secondary">
+                                                            <button
+                                                                    class="btn-amount btn btn-sm btn-outline-warning btn-circle order-minus">
+                                                                <i class="fas fa-minus"></i>
+                                                            </button>
+                                                            <input class="input-amount quantity order-input" min="1"
+                                                                   max="3"
+                                                                   name="quantity"
+                                                                   data-cart-game-id="{{ game.id }}"
+                                                                   value="{{ game.quantity }}"
+                                                                   type="number">
+                                                            <button class="order-plus btn-amount btn btn-sm btn-outline-warning btn-circle">
+                                                                <i class="fas fa-plus"></i>
+                                                            </button>
+                                                        </div>
+                                                        <div class="item_price d-none d-sm-block">
+                                                            <div class="row align-items-center h-100 no-gutters">
+                                                                <div class="text-right">
+                                                                    {% if game.discount_price %}
+                                                                        <span class="game-price fw-600 td-lt">{{ game.price }} руб.</span>
+                                                                        <br>
+                                                                        <span class="game-discount fw-600">{{ game.discount_price }} руб.</span>
+                                                                    {% else %}
+                                                                        <span class="game-price fw-600">{{ game.price }} руб.</span>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="pl-4">
+                                                            <div class="row align-items-center h-100 no-gutters">
+                                                                <div class="text-right lead-2">
+                                                                    <a href="#" class="order-trash-button" href="#"
+                                                                       data-cart-game-id="{{ id }}">
+                                                                        <i class=" far fa-trash-alt"></i>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                        <!-- /.item -->
+                                    </div>
+                                    <hr class="border-secondary my-4">
+                                </div>
+                                {% if request.session.cart %}
+                                    <div class="mb-5">
+                                        <h4>Почта для получения товаров</h4>
+                                        <form class="input-transparent email-form" method="post">
+                                            <div class="form-group input-group mb-0">
+                                                {% csrf_token %}
+                                                <input type="email" name="email" id="email" class="form-control"
+                                                       placeholder="Введите свой email" required>
+                                                <input type="submit" style="display: none">
+                                            </div>
+                                        </form>
+                                        <hr class="border-secondary my-4">
+                                    </div>
+                                    <div class="mb-5">
+                                        <h4>Информация о товаре</h4>
+                                        Товары доставляются в течении часа. Ключи будут находиться в txt файле.
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if request.session.cart %}
+                            <div class="col-lg-4">
+                                <div class="archive border border-secondary rounded">
+                                    <div class="bg-secondary px-4 py-1"><span class="fw-600 ls-1 text-uppercase lead-1">Заказ</span>
+                                    </div>
+                                    <div class="p-4">
+                                        <ul class="list-unstyled small mb-0">
+                                            <li class="small-2">Детали заказа</li>
+                                            <li>
+                                                <hr class="my-3 border-secondary">
+                                            </li>
+                                            <li class="my-1">
+                                                <div class="d-flex small-2 fw-600">
+                                                    <div>Полная цена</div>
+                                                    <div class="summary-price ml-auto">1 434,32$</div>
+                                                </div>
+                                            </li>
+                                            <li class="my-1">
+                                                <div class="d-flex text-info small-2 fw-600">
+                                                    <div>Ваша скидка</div>
+                                                    <div class="summary-discount ml-auto">-519,79$</div>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <hr class="my-3 border-secondary">
+                                            </li>
+                                            <li>
+                                                <div class="d-flex small-1 fw-600">
+                                                    <div>Итог</div>
+                                                    <div class="final_price ml-auto text-warning">919,79$</div>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <hr class="my-3 border-secondary">
+                                            </li>
+                                            <li>
+                                                <a href="#"
+                                                   class="btn btn-lg btn-block btn-warning mt-4 order-button">Заказать</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.content area -->
+
+    </main>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        function calculate_summary() {
+            let main = document.querySelector('main')
+            let products = main.querySelectorAll(".product-item")
+
+            let summary = 0
+            let discount_summary = 0
+
+            for (const product of products) {
+                let price = parseFloat(product.querySelector('.game-price').textContent)
+
+                let input = product.querySelector('input')
+                let quantity = parseInt(input.value)
+
+                let product_summary = price * quantity
+                summary += product_summary
+
+                let discount = product.querySelector('.game-discount')
+                if (discount) {
+                    discount = parseFloat(discount.textContent)
+
+                    let product_discount_summary = quantity * discount
+                    discount_summary += product_discount_summary
+                }
+            }
+
+            document.querySelector('.summary-price').textContent = `${summary} руб.`
+            document.querySelector('.summary-discount').textContent = discount_summary ? `-${discount_summary} руб.` : '0 руб.'
+            document.querySelector('.final_price').textContent = `${summary - discount_summary} руб.`
+        }
+
+        $(document).ready(calculate_summary());
+
+        $(".order-minus").on('click', function (e) {
+            let input = this.parentNode.querySelector('input')
+            input.stepDown()
+            update(input)
+            let cart_input = document.querySelector(`input.cart-input[data-cart-game-id="${input.getAttribute('data-cart-game-id')}"]`)
+            cart_input.value = input.value
+            calculate_summary()
+        });
+
+        $(".order-plus").on('click', function (e) {
+            let input = this.parentNode.querySelector('input')
+            input.stepUp()
+            update(input)
+            let cart_input = document.querySelector(`input.cart-input[data-cart-game-id="${input.getAttribute('data-cart-game-id')}"]`)
+            cart_input.value = input.value
+            calculate_summary()
+        });
+
+        $(".order-trash-button").on('click', function (e) {
+            let game_id = this.getAttribute('data-cart-game-id')
+            $.ajax({
+                headers: {"X-CSRFToken": '{{ csrf_token }}'},
+                url: "/cart/",
+                type: 'POST',
+                data: {'quantity': 0, 'game_id': game_id},
+                success: location.reload(),
+            })
+        });
+
+        $(".order-button").on('click', function (e) {
+            let form = document.querySelector('.email-form')
+            form.querySelector('input[type="submit"]').click()
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,185 @@
+version: "3.8"
+
+
+services:
+  postgres:
+    image: postgres
+    container_name: postgres_gameshop
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      PGUSER: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_gameshop_data
+    restart: always
+
+  app:
+    build: .
+    image: app
+    container_name: app_gameshop
+    command: python manage.py runserver 0.0.0.0:8000
+    network_mode: host
+    volumes:
+      - ./:/app/
+    depends_on:
+      - postgres
+      - redis
+
+
+  redis:
+    image: redis:alpine
+    container_name: redis_gameshop
+    network_mode: host
+
+
+  celery:
+    image: app
+    container_name: celery_gameshop
+    command: celery -A djangoProject worker -B -l info
+    volumes:
+      - ./:/app/
+    depends_on:
+      - redis
+    network_mode: host
+
+  flower:
+    image: app
+    container_name: flower_gameshop
+    command: celery -A djangoProject flower
+    network_mode: host
+    environment:
+      CELERY_BROKER_URL: redis://localhost
+      CELERY_RESULT_BACKEND: redis://localhost
+    depends_on:
+      - celery
+      - redis
+
+
+  telepush:
+    container_name: telepush_gameshop
+    image: ghcr.io/muety/telepush
+    environment:
+      APP_TOKEN: 6478257279:AAHroVbXwkEcpTV1Gj1PK0OlD8axgujaqCk
+      APP_MODE: poll
+      TELEPUSH_USE_HTTPS: "false"
+    command: -port 8083
+    volumes:
+      - telepush_data:/srv/data
+    network_mode: host
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter_gameshop
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    network_mode: host
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter_gameshop
+    restart: unless-stopped
+    environment:
+      - DATA_SOURCE_NAME=postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable
+    network_mode: host
+    depends_on:
+      - postgres
+
+  cadvisor:
+    container_name: cadvisor_gameshop
+    image: gcr.io/cadvisor/cadvisor:latest
+    command:
+      - "--housekeeping_interval=30s"
+      - "--docker_only=true"
+      - "--disable_metrics=percpu,sched,tcp,udp,disk,diskIO,accelerator,hugetlb,referenced_memory,cpu_topology,resctrl"
+    volumes:
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+      - /sys:/sys:ro
+      - /var/run:/var/run:ro
+      - /:/rootfs:ro
+      - /sys/fs/cgroup:/cgroup:ro
+      - /etc/machine-id:/etc/machine-id:ro
+      - /etc/localtime:/etc/localtime:ro
+    privileged: true
+    restart: unless-stopped
+    network_mode: host
+    devices:
+      - "/dev/kmsg"
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager_gameshop
+    volumes:
+      - ./alertmanager/:/etc/alertmanager/
+    restart: always
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
+    network_mode: host
+
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: prometheus_gameshop
+    restart: always
+    volumes:
+      - prometheus_volume:/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/rules:/etc/prometheus/rules
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    network_mode: host
+
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: grafana_gameshop
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    network_mode: host
+
+  loki:
+    image: grafana/loki:2.9.2
+    container_name: loki_gameshop
+    user: 1000:1000
+    volumes:
+      - ./loki/data:/loki:rw
+      - ./loki/loki.yml:/etc/loki/local-config.yaml
+    network_mode: host
+
+    depends_on:
+      - promtail
+
+  promtail:
+    image: grafana/promtail:2.9.2
+    container_name: promtail_gameshop
+    volumes:
+      - ./loki/promtail.yml:/etc/promtail/config.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    network_mode: host
+
+volumes:
+  postgres_gameshop_data:
+  telepush_data:
+  prometheus_volume:
+  grafana_data:

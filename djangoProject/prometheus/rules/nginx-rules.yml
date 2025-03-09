@@ -1,0 +1,12 @@
+groups:
+    - name: nginx.rules
+      rules:
+        - alert: '[Nginx] No Intances Up'
+          expr: |
+            sum (nginx_up) == 0
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            description: No Nginx instances Up
+

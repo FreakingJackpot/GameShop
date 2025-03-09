@@ -1,0 +1,124 @@
+{% extends 'website/base.html' %}
+{% load static %}
+
+{% block content %}
+    <main class="main-content">
+        <!-- Start Content Area -->
+        <section class="content-section top_sellers carousel-spotlight ig-carousel pt-8 text-light">
+            <div class="container">
+
+                <header class="header">
+                    <h2>{{ content_block_name }}</h2>
+                </header>
+
+                <div class="position-relative">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <!-- nav tabs -->
+                            <ul class="spotlight-tabs spotlight-tabs-dark nav nav-tabs border-0 mb-5 position-relative flex-nowrap"
+                                id="most_popular_products-carousel-01" role="tablist">
+                            </ul>
+                            <!-- tab panes -->
+                            <div id="color_sel_Carousel-content_02" class="tab-content position-relative w-100">
+                                <!-- tab item -->
+                                <div class="tab-pane fade active show" id="mp-2-01-c" role="tabpanel"
+                                     aria-labelledby="mp-2-01-tab">
+                                    <div class="row">
+                                        <!-- item -->
+                                        {% for game in games %}
+                                            <div class="col-md-12 mb-4">
+                                                <a href="{% url 'website:detail' game.obj.id %}"
+                                                   class="product-item">
+                                                    <div class="row align-items-center no-gutters">
+                                                        <div class="item_img d-none d-sm-block">
+                                                            <img class="img bl-3 text-primary"
+                                                                 src="{{ game.header }}"
+                                                                 alt="Games Store">
+                                                        </div>
+                                                        <div class="item_content flex-1 flex-grow pl-0 pl-sm-6 pr-6">
+                                                            <h6 class="item_title ls-1 small-1 fw-600 text-uppercase mb-1">
+                                                                {{ game.obj.name }}</h6>
+                                                            <div class="mb-0">
+                                                                <i class="mr-2 fab fa-windows"></i>
+                                                                <i class="mr-2 fab fa-steam"></i>
+                                                                <i class="fab fa-apple"></i>
+                                                            </div>
+                                                            <div class="position-relative">
+                                <span class="item_genre small fw-600">
+                                  {{ game.genres }}
+                                </span>
+                                                            </div>
+                                                        </div>
+                                                        {% if game.obj.discount_price %}
+                                                            <div class="item_discount d-none d-sm-block">
+                                                                <div class="row align-items-center h-100 no-gutters">
+                                                                    <div class="text-right text-secondary px-6">
+                                                                        <span class="fw-600 btn bg-warning">-{{ game.obj.applied_rule.discount_percent }}%</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="item_price">
+                                                                <div class="row align-items-center h-100 no-gutters">
+                                                                    <div class="text-right">
+                                                                        <span class="fw-600 td-lt">{{ game.obj.price }} руб.</span><br>
+                                                                        <span class="fw-600">{{ game.obj.discount_price }} руб.</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="item_price">
+                                                                <div class="row align-items-center h-100 no-gutters">
+                                                                    <div class="text-right">
+                                                                        <span class="fw-600">{{ game.obj.price }} руб.</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <!-- tab item -->
+
+                            </div>
+
+
+                            <!-- pagination -->
+                            <nav class="mt-4 pt-4 border-top border-secondary" aria-label="Page navigation">
+                                <ul class="pagination justify-content-end">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}"
+                                               aria-label="Previous">
+                                                <i class="fa-solid fa-arrow-left"></i>
+                                                <span class="sr-only">Прошлая</span>
+                                            </a>
+
+                                        </li>
+                                    {% endif %}
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}"
+                                               aria-label="Next">
+                                                <i class="fa-solid fa-arrow-right"></i>
+                                                <span class="sr-only">Следующая</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    <li class="page-item">
+                                        {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+                                    </li>
+                                </ul>
+                            </nav>
+                            <!-- /.pagination -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- /.End Content Area -->
+
+    </main>
+{% endblock %}

@@ -1,0 +1,10 @@
+route:
+  group_by: [ 'alertname' ]
+  group_wait: 10s       # wait up to 10s for more alerts to group them
+  receiver: 'telepush'  # see below
+
+
+receivers:
+  - name: 'telepush'
+    webhook_configs:
+      - url: 'http://localhost:8083/api/inlets/alertmanager/39f4ba'

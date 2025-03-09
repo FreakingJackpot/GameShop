@@ -1,0 +1,78 @@
+version: "3.8"
+
+
+services:
+  postgres:
+    image: postgres
+    container_name: postgres_gameshop
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      PGUSER: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_gameshop_data
+    restart: always
+
+  app:
+    build: .
+    image: app
+    container_name: app_gameshop
+    command: sh -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn djangoProject.wsgi:application --bind 0.0.0.0:8000"
+    expose:
+      - 8000
+
+    volumes:
+      - ./static:/app/static
+      - ./:/app/
+    depends_on:
+      - postgres
+      - redis
+
+  nginx:
+    build: ./nginx
+    container_name: nginx_gameshop
+    volumes:
+      - ./static:/home/app_gameshop/web/static
+      - nginx_gameshop_log:/var/log/nginx
+    ports:
+      - 1337:80
+    depends_on:
+      - app
+
+
+
+  redis:
+    image: redis:alpine
+    container_name: redis_gameshop
+    ports:
+      - 6379:6379
+
+
+  celery:
+    image: app
+    container_name: celery_gameshop
+    command: celery -A djangoProject worker -B -l info
+    depends_on:
+      - redis
+
+  flower:
+    image: app
+    container_name: flower_gameshop
+    command: celery -A djangoProject flower
+    ports:
+      - 5555:5555
+    environment:
+      CELERY_BROKER_URL: redis://redis_gameshop
+      CELERY_RESULT_BACKEND: redis://redis_gameshop
+    depends_on:
+      - celery
+      - redis
+
+
+
+volumes:
+  postgres_gameshop_data:
+  nginx_gameshop_log:

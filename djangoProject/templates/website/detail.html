@@ -1,0 +1,199 @@
+{% extends 'website/base.html' %}
+{% load static %}
+
+
+
+{% block content %}
+    <main class="main-content">
+        <div class="overlay overflow-hidden pe-n"><img src="{% static 'wicodius/img/bg_shape.png' %}"
+                                                       alt="Background shape"></div>
+        <div class="content-section text-light pt-8">
+            <div class="container">
+                <div class="row gutters-y">
+                    <div class="col-12">
+                        <header>
+                            <h3 class="product_name mb-4">{{ game.obj.name }}</h3>
+                        </header>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="product-body">
+                                    <!--Carousel Wrapper-->
+                                    <div class="carousel-product">
+                                        <div class="slick" id="slider">
+                                            {% for img in game.images %}
+                                                <div style="width: 698px;">
+                                                    <div><img src="{{ img.url }}" alt="Game"
+                                                              style="width: 100%; display: inline-block;"></div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <!--/.Carousel Wrapper-->
+
+                                    <div id="about" class="about mb-8">
+                                        <br><h6 class="mb-4 fw-400 ls-1 text-uppercase">Об игре</h6>
+                                        <hr class="border-secondary my-2">
+                                        <div>
+                                            <div class="collapse readmore" id="collapseSummary">
+                                                <p>{{ game.obj.description|safe }}</p>
+                                            </div>
+                                            <a class="readmore-btn collapsed" data-toggle="collapse"
+                                               href="#collapseSummary"
+                                               aria-expanded="false" aria-controls="collapseSummary"></a>
+                                        </div>
+                                    </div>
+                                    <div id="system_requirements" class="mb-8">
+                                        <h6 class="mb-4 fw-400 ls-1 text-uppercase">Системные требования</h6>
+                                        <hr class="border-secondary my-2">
+                                        <div>
+                                            <div class="tab-content" id="fillupTabContent">
+                                                <div class="tab-pane fade active show" id="fillup-1" role="tabpanel"
+                                                     aria-labelledby="fillup-home-tab">
+                                                    <div class="row">
+                                                        <div class="col-xs-12 col-lg-6 mb-6 mb-lg-0">
+                                                            <div class="row">
+                                                                <div class="col-12">
+                                                                    <span class="d-inline-block text-uppercase fw-500 mb-3 text-info">Минимальные требования:</span>
+                                                                </div>
+                                                            </div>
+                                                            {{ game.req_min|safe }}
+                                                        </div>
+                                                        {% if game.req_recom %}
+                                                            <div class="col-xs-12 col-lg-6">
+                                                                <div class="row">
+                                                                    <div class="col-12">
+                                                                        <span class="d-inline-block text-uppercase fw-500 mb-3 text-warning">Рекомендованные требования:</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="req_desc">
+                                                                    {{ game.req_recom|safe }}
+                                                                </div>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-0">
+                                        <div>
+                                            <div>
+                                                <p class="small">*Ключи действительны только для аккаунтов с СНГ
+                                                    региона</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="bg-dark_A-20 p-4 mb-4">
+                            <img src="{{ game.header.url }}" alt="Product" class="mb-3">
+                            <div class="price-wrapper">
+                                <div class="mb-3">
+                                    <div class="price">
+                                        {% if game.obj.discount_price %}
+                                            <div class="price-prev">{{ game.obj.price }} руб.</div>
+                                            <div class="price-current">{{ game.obj.discount_price }} руб.</div>
+                                        {% else %}
+                                            <div class="price-current">{{ game.obj.price }} руб.</div>
+                                        {% endif %}
+                                    </div>
+                                    {% if game.obj.discount_price %}
+                                        <div class="discount">
+                                            Сэкономь: {{ diff_in_price }} ({{ game.obj.applied_rule.discount_percent }}%)
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="price-box mb-4">
+                                    <div class="flex-1">
+                                        <a class="btn btn-block btn-warning" id="cart-button"
+                                           data-game-id="{{ game.obj.id }}">
+                                            <i class="fas fa-shopping-cart"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-dark_A-20 p-4">
+                            <h6 class="mb-3">Дополниттельная информация</h6>
+                            <hr class="border-secondary mt-2 mb-4">
+                            <ul class="list-unstyled mb-3">
+                                <li>
+                                    <a href="" class="developer">Разработчики:</a>
+                                    {% for dev in game.obj.developers.all %}
+                                        <a href="">{{ dev.name }}</a>,
+                                    {% endfor %}
+                                </li>
+                            </ul>
+                            <ul class="list-unstyled mb-3">
+                                <li>
+                                    <a href="" class="developer">Издатели:</a>
+                                    {% for pub in game.obj.publishers.all %}
+                                        <a href="">{{ pub.name }}</a>,
+                                    {% endfor %}
+                                </li>
+                            </ul>
+                            <ul class="list-unstyled small-2 mb-3">
+                                <li>
+                                    <a href="" class="developer">Жанры:</a>
+                                    {% for gen in game.obj.genres.all %}
+                                        <a href="">{{ gen.name }}</a>,
+                                    {% endfor %}
+                                </li>
+                            </ul>
+                            <ul class="list-unstyled small-2 mb-3">
+                                <li>
+                                    <a href="" class="developer">Категории:</a>
+                                    {% for cat in game.obj.categories.all %}
+                                        <a href="">{{ cat.name }}</a>,
+                                    {% endfor %}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Content Area -->
+
+    </main>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function () {
+            $("#slider").slick()
+        });
+
+        $("#cart-button").on('click', function (e) {
+            if (this.text === "К корзине") {
+                let event = new Event("click")
+                document.querySelector("#cart-icon").dispatchEvent(event)
+            } else {
+                let game_id = this.getAttribute('data-game-id')
+                let quantity = 1
+                $.ajax({
+                    headers: {"X-CSRFToken": '{{ csrf_token }}'},
+                    url: "/cart/",
+                    type: 'POST',
+                    data: {'quantity': quantity, 'game_id': game_id},
+                    success: location.reload(true)
+                })
+            }
+        });
+
+        $(document).ready(function () {
+                let in_cart = document.querySelector('[data-cart-game-id="{{game.obj.id}}"]')
+                let button = document.querySelector('#cart-button')
+                button.text = in_cart ? "К корзине" : "Добавить в корзину"
+            }
+        )
+
+    </script>
+
+{% endblock %}
